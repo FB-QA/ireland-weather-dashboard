@@ -29,4 +29,5 @@ const dom = {
     startDateInput: document.getElementById("start-date"),
     endDateInput: document.getElementById("end-date"),
     rangeBtns: document.querySelectorAll(".range-btn"),
+    lastUpdated: document.getElementById("last-updated"),
 };

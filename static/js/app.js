@@ -11,6 +11,34 @@
  */
 
 // ---------------------------------------------------------------------------
+// Last Updated Timestamp
+// ---------------------------------------------------------------------------
+
+function formatLastUpdated() {
+    return new Date().toLocaleTimeString("en-IE", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+    }).toUpperCase();
+}
+
+function showLastUpdated() {
+    const el = dom.lastUpdated;
+    const now = new Date();
+    const timeEl = document.createElement("time");
+    timeEl.setAttribute("datetime", now.toISOString());
+    timeEl.textContent = formatLastUpdated();
+    el.textContent = "Updated ";
+    el.appendChild(timeEl);
+    el.classList.remove("loading");
+    el.classList.add("visible");
+}
+
+function setLastUpdatedLoading() {
+    dom.lastUpdated.classList.add("loading");
+}
+
+// ---------------------------------------------------------------------------
 // Date Range Helpers
 // ---------------------------------------------------------------------------
 
@@ -89,6 +117,7 @@ function handleRangePreset(days) {
 async function loadWeatherData(lat, lon, locationName) {
     hideError();
     showLoading();
+    setLastUpdatedLoading();
 
     try {
         const weatherData = await fetchWeather(lat, lon, state.dateRange);
@@ -101,6 +130,7 @@ async function loadWeatherData(lat, lon, locationName) {
         renderCurrentConditions(weatherData.current);
         renderChart(weatherData.hourly, state.activeMetric);
         showWeatherUI();
+        showLastUpdated();
     } catch (error) {
         console.error("Error loading weather data:", error);
         showError(error.message);
