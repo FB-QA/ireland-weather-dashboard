@@ -14,6 +14,15 @@ async function fetchCounties() {
     return json.data;
 }
 
+async function fetchGeolocation() {
+    const response = await fetch("/api/geolocation");
+    if (!response.ok) {
+        throw new Error("Could not determine your location.");
+    }
+    const json = await response.json();
+    return json.data;
+}
+
 async function fetchWeather(lat, lon) {
     const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
     if (!response.ok) {
