@@ -28,5 +28,4 @@ const dom = {
     promptMessage: document.getElementById("prompt-message"),
     startDateInput: document.getElementById("start-date"),
     endDateInput: document.getElementById("end-date"),
-    rangeBtns: document.querySelectorAll(".range-btn"),
 };
