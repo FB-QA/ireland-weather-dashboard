@@ -53,10 +53,32 @@ function handleDateChange() {
 
     if (start && end) {
         state.dateRange = { start, end };
+        // Clear active preset since user picked custom dates
+        dom.rangeBtns.forEach((b) => b.classList.remove("active"));
         if (state.selectedLocation) {
             const { lat, lon, name } = state.selectedLocation;
             loadWeatherData(lat, lon, name);
         }
+    }
+}
+
+function handleRangePreset(days) {
+    const today = new Date();
+    const end = new Date(today);
+    end.setDate(end.getDate() + days);
+
+    dom.startDateInput.value = toISODate(today);
+    dom.endDateInput.value = toISODate(end);
+    state.dateRange = { start: toISODate(today), end: toISODate(end) };
+
+    // Update active button
+    dom.rangeBtns.forEach((b) => {
+        b.classList.toggle("active", Number(b.dataset.days) === days);
+    });
+
+    if (state.selectedLocation) {
+        const { lat, lon, name } = state.selectedLocation;
+        loadWeatherData(lat, lon, name);
     }
 }
 
@@ -197,6 +219,12 @@ function bindEvents() {
 
     dom.startDateInput.addEventListener("change", handleDateChange);
     dom.endDateInput.addEventListener("change", handleDateChange);
+
+    dom.rangeBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            handleRangePreset(Number(btn.dataset.days));
+        });
+    });
 }
 
 // ---------------------------------------------------------------------------
