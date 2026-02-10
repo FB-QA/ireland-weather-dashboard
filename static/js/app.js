@@ -60,9 +60,9 @@ function handleGeolocation() {
         (error) => {
             hideLoading();
             const messages = {
-                1: "Location access denied. Please select a county from the dropdown instead.",
-                2: "Location unavailable. Please select a county from the dropdown instead.",
-                3: "Location request timed out. Please try again or select a county.",
+                1: "Location access was denied. Please allow location access in your browser settings and try again, or select a county from the dropdown.",
+                2: "Location unavailable. Please check that Location Services is enabled in your system settings and that your browser has location permission, then try again. Or select a county from the dropdown.",
+                3: "Location request timed out. Please try again or select a county from the dropdown.",
             };
             showError(
                 messages[error.code] ||
