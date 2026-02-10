@@ -10,6 +10,7 @@ const state = {
     weatherData: null,
     activeMetric: "temperature",
     selectedLocation: null,
+    dateRange: null,
 };
 
 const dom = {
@@ -25,4 +26,6 @@ const dom = {
     errorDismiss: document.getElementById("error-dismiss"),
     locationLabel: document.getElementById("location-label"),
     promptMessage: document.getElementById("prompt-message"),
+    startDateInput: document.getElementById("start-date"),
+    endDateInput: document.getElementById("end-date"),
 };

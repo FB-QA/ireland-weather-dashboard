@@ -78,8 +78,10 @@ function renderChart(hourlyData, metric) {
         return;
     }
 
-    // Open-Meteo returns hourly data — sample every 3 hours for readability
-    const step = 3;
+    // Dynamic sampling: adjust step based on total hours for readable charts
+    const totalHours = hourlyData.time.length;
+    const days = totalHours / 24;
+    const step = days <= 3 ? 1 : days <= 7 ? 3 : 6;
     const labels = [];
     const data = [];
 
