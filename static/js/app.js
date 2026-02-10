@@ -41,9 +41,10 @@ async function loadWeatherData(lat, lon, locationName) {
 // Geolocation
 // ---------------------------------------------------------------------------
 
-function handleGeolocation() {
+async function handleGeolocation() {
     if (!navigator.geolocation) {
-        showError("Geolocation is not supported by your browser.");
+        // No native geolocation support — go straight to IP fallback
+        await fallbackToIPGeolocation();
         return;
     }
 
@@ -52,22 +53,16 @@ function handleGeolocation() {
 
     navigator.geolocation.getCurrentPosition(
         (position) => {
+            // Native geolocation succeeded
             hideLoading();
             const { latitude, longitude } = position.coords;
             dom.countySelect.value = "";
             loadWeatherData(latitude, longitude, "Your Location");
         },
-        (error) => {
-            hideLoading();
-            const messages = {
-                1: "Location access denied. Please select a county from the dropdown instead.",
-                2: "Location unavailable. Please select a county from the dropdown instead.",
-                3: "Location request timed out. Please try again or select a county.",
-            };
-            showError(
-                messages[error.code] ||
-                    "Could not determine your location. Please select a county."
-            );
+        async (error) => {
+            // Native geolocation failed — try IP fallback silently
+            console.warn("Native geolocation failed, trying IP fallback:", error.message);
+            await fallbackToIPGeolocation();
         },
         {
             enableHighAccuracy: false,
@@ -75,6 +70,19 @@ function handleGeolocation() {
             maximumAge: 300000,
         }
     );
+}
+
+async function fallbackToIPGeolocation() {
+    hideError();
+    showLoading();
+    try {
+        const geo = await fetchGeolocation();
+        dom.countySelect.value = "";
+        loadWeatherData(geo.lat, geo.lon, geo.city || "Your Location");
+    } catch (err) {
+        hideLoading();
+        showError("Could not determine your location. Please select a county from the dropdown.");
+    }
 }
 
 // ---------------------------------------------------------------------------

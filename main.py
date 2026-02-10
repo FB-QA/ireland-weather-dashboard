@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
+IP_GEOLOCATION_URL = "https://ipapi.co/json/"
 
 # All 26 Republic of Ireland counties with approximate lat/lon coordinates
 COUNTIES = [
@@ -111,6 +112,54 @@ async def get_weather(
         )
 
     return {"data": response.json()}
+
+
+@app.get("/api/geolocation")
+async def get_geolocation():
+    """
+    Return approximate lat/lon from the caller's IP address.
+
+    Uses ipapi.co (free tier, no key required) as a proxy so the frontend
+    never contacts external services directly.
+    """
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            response = await client.get(IP_GEOLOCATION_URL)
+        except httpx.TimeoutException:
+            raise HTTPException(
+                status_code=504,
+                detail="Geolocation service request timed out. Please try again.",
+            )
+        except httpx.RequestError as exc:
+            raise HTTPException(
+                status_code=502,
+                detail=f"Could not reach geolocation service: {exc}",
+            )
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=response.status_code,
+            detail="Geolocation service returned an error. Please try again.",
+        )
+
+    payload = response.json()
+
+    # ipapi.co returns an "error" field when the request is rate-limited or
+    # the IP cannot be resolved.
+    if payload.get("error"):
+        raise HTTPException(
+            status_code=503,
+            detail=payload.get("reason", "Geolocation lookup failed."),
+        )
+
+    return {
+        "data": {
+            "lat": payload.get("latitude"),
+            "lon": payload.get("longitude"),
+            "city": payload.get("city"),
+            "country": payload.get("country_name"),
+        }
+    }
 
 
 # ---------------------------------------------------------------------------
