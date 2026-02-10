@@ -8,12 +8,10 @@ A lightweight web app that displays weather data for Irish counties, visualised 
 - 5-day forecast visualised as interactive charts (temperature, rainfall, wind speed)
 - Use browser geolocation or select a county from a searchable dropdown
 - Responsive design that works on desktop and mobile
-- API key kept server-side for security
 
 ## Prerequisites
 
 - Python 3.9+
-- An [OpenWeatherMap](https://openweathermap.org/api) API key (free tier works)
 
 ## Setup
 
@@ -33,26 +31,22 @@ A lightweight web app that displays weather data for Irish counties, visualised 
    pip install -r requirements.txt
    ```
 
-4. **Set up your API key:**
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` and replace `your_key_here` with your OpenWeatherMap API key.
-
-5. **Run the app:**
+4. **Run the app:**
    ```bash
    uvicorn main:app --reload
    ```
 
-6. **Open your browser:**
+5. **Open your browser:**
    Navigate to [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+> **Note:** No API key or `.env` file is needed — the app uses [Open-Meteo](https://open-meteo.com/), which is free and requires no authentication.
 
 ## Tech Stack
 
 - **Backend:** Python / FastAPI
 - **Frontend:** HTML, CSS, JavaScript (no framework, no build step)
 - **Charts:** Chart.js (loaded via CDN)
-- **Weather API:** OpenWeatherMap (free tier)
+- **Weather API:** Open-Meteo (free, no key required)
 
 ## Project Structure
 
@@ -61,7 +55,6 @@ ireland-weather-dashboard/
   main.py                # FastAPI app - API routes + static file serving
   requirements.txt       # Python dependencies
   .env.example           # Environment variable template
-  .env                   # Your actual API key (not committed)
   static/
     index.html           # Main page
     css/
