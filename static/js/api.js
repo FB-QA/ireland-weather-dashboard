@@ -23,8 +23,12 @@ async function fetchGeolocation() {
     return json.data;
 }
 
-async function fetchWeather(lat, lon) {
-    const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+async function fetchWeather(lat, lon, dateRange) {
+    let url = `/api/weather?lat=${lat}&lon=${lon}`;
+    if (dateRange) {
+        url += `&start_date=${dateRange.start}&end_date=${dateRange.end}`;
+    }
+    const response = await fetch(url);
     if (!response.ok) {
         const err = await response.json().catch(() => ({}));
         throw new Error(err.detail || "Failed to fetch weather data.");

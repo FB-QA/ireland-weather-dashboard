@@ -5,6 +5,9 @@ Serves the frontend as static files and proxies Open-Meteo API calls.
 No API key required.
 """
 
+from datetime import date, timedelta
+from typing import Optional
+
 import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
@@ -75,10 +78,13 @@ async def get_counties():
 async def get_weather(
     lat: float = Query(..., description="Latitude"),
     lon: float = Query(..., description="Longitude"),
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
 ):
     """
-    Fetch current conditions and 5-day hourly forecast from Open-Meteo.
-    Returns both in a single response — no API key required.
+    Fetch current conditions and hourly forecast from Open-Meteo.
+    Accepts optional start_date/end_date for custom date ranges (up to 16 days).
+    If omitted, defaults to a 5-day forecast. No API key required.
     """
     _validate_coordinates(lat, lon)
 
@@ -87,9 +93,35 @@ async def get_weather(
         "longitude": lon,
         "current": "temperature_2m,weather_code,wind_speed_10m,relative_humidity_2m,apparent_temperature,pressure_msl",
         "hourly": "temperature_2m,precipitation,wind_speed_10m",
-        "forecast_days": 5,
         "timezone": "Europe/London",
     }
+
+    if start_date or end_date:
+        if not (start_date and end_date):
+            raise HTTPException(
+                status_code=400,
+                detail="Both start_date and end_date are required when specifying a date range.",
+            )
+        try:
+            sd = date.fromisoformat(start_date)
+            ed = date.fromisoformat(end_date)
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid date format. Use YYYY-MM-DD.",
+            )
+        today = date.today()
+        max_date = today + timedelta(days=16)
+        if sd < today:
+            raise HTTPException(status_code=400, detail="start_date cannot be in the past.")
+        if ed > max_date:
+            raise HTTPException(status_code=400, detail="end_date cannot be more than 16 days from today.")
+        if sd > ed:
+            raise HTTPException(status_code=400, detail="start_date must be on or before end_date.")
+        params["start_date"] = start_date
+        params["end_date"] = end_date
+    else:
+        params["forecast_days"] = 5
 
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:

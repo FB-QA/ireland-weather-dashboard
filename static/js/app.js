@@ -11,6 +11,56 @@
  */
 
 // ---------------------------------------------------------------------------
+// Date Range Helpers
+// ---------------------------------------------------------------------------
+
+function toISODate(d) {
+    return d.toISOString().split("T")[0];
+}
+
+function initDateInputs() {
+    const today = new Date();
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 16);
+
+    const defaultEnd = new Date(today);
+    defaultEnd.setDate(defaultEnd.getDate() + 5);
+
+    const minStr = toISODate(today);
+    const maxStr = toISODate(maxDate);
+
+    dom.startDateInput.min = minStr;
+    dom.startDateInput.max = maxStr;
+    dom.startDateInput.value = minStr;
+
+    dom.endDateInput.min = minStr;
+    dom.endDateInput.max = maxStr;
+    dom.endDateInput.value = toISODate(defaultEnd);
+
+    state.dateRange = { start: minStr, end: toISODate(defaultEnd) };
+}
+
+function handleDateChange() {
+    let start = dom.startDateInput.value;
+    let end = dom.endDateInput.value;
+
+    // Auto-swap if start > end
+    if (start && end && start > end) {
+        [start, end] = [end, start];
+        dom.startDateInput.value = start;
+        dom.endDateInput.value = end;
+    }
+
+    if (start && end) {
+        state.dateRange = { start, end };
+        if (state.selectedLocation) {
+            const { lat, lon, name } = state.selectedLocation;
+            loadWeatherData(lat, lon, name);
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Data Loading
 // ---------------------------------------------------------------------------
 
@@ -19,7 +69,7 @@ async function loadWeatherData(lat, lon, locationName) {
     showLoading();
 
     try {
-        const weatherData = await fetchWeather(lat, lon);
+        const weatherData = await fetchWeather(lat, lon, state.dateRange);
 
         state.weatherData = weatherData;
         state.selectedLocation = { lat, lon, name: locationName };
@@ -144,6 +194,9 @@ function bindEvents() {
     });
 
     dom.errorDismiss.addEventListener("click", hideError);
+
+    dom.startDateInput.addEventListener("change", handleDateChange);
+    dom.endDateInput.addEventListener("change", handleDateChange);
 }
 
 // ---------------------------------------------------------------------------
@@ -151,6 +204,7 @@ function bindEvents() {
 // ---------------------------------------------------------------------------
 
 async function init() {
+    initDateInputs();
     bindEvents();
 
     try {
