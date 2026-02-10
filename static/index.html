@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ireland Weather Dashboard</title>
+    <meta
+        name="description"
+        content="View weather data for Irish counties with interactive charts."
+    />
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-inner">
+            <h1 class="header-title">
+                <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28" aria-hidden="true">
+                    <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+                </svg>
+                Ireland Weather
+            </h1>
+            <p class="header-subtitle">5-day forecast for every county</p>
+        </div>
+    </header>
+
+    <!-- Controls -->
+    <section class="controls" aria-label="Location selection">
+        <div class="container controls-inner">
+            <div class="control-group">
+                <label for="county-select" class="control-label">County</label>
+                <select id="county-select" class="county-select" aria-label="Select an Irish county">
+                    <option value="">Select a county...</option>
+                </select>
+            </div>
+            <div class="control-divider" aria-hidden="true">or</div>
+            <div class="control-group">
+                <button
+                    type="button"
+                    id="geo-button"
+                    class="geo-button"
+                    aria-label="Use my current location"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/>
+                    </svg>
+                    Use My Location
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Error Banner -->
+    <div id="error-banner" class="error-banner" role="alert" aria-live="assertive">
+        <div class="container error-inner">
+            <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span id="error-message"></span>
+            <button
+                type="button"
+                id="error-dismiss"
+                class="error-dismiss"
+                aria-label="Dismiss error"
+            >
+                &times;
+            </button>
+        </div>
+    </div>
+
+    <!-- Prompt (default state) -->
+    <div id="prompt-message" class="prompt-message">
+        <div class="container">
+            <div class="prompt-card">
+                <svg class="prompt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="48" height="48" aria-hidden="true">
+                    <path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <h2 class="prompt-title">Choose a Location</h2>
+                <p class="prompt-text">
+                    Select a county from the dropdown above or use your current
+                    location to view the weather forecast.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Location Label -->
+            <h2 class="location-heading">
+                <span id="location-label"></span>
+            </h2>
+
+            <!-- Current Conditions -->
+            <section
+                id="current-conditions"
+                class="current-conditions"
+                aria-label="Current weather conditions"
+            ></section>
+
+            <!-- Chart Section -->
+            <section
+                id="chart-section"
+                class="chart-section"
+                aria-label="Weather forecast chart"
+            >
+                <!-- Metric Tabs -->
+                <div class="metric-tabs" role="tablist" aria-label="Weather metric selection">
+                    <button
+                        type="button"
+                        class="metric-tab active"
+                        role="tab"
+                        data-metric="temperature"
+                        aria-selected="true"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+                            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0Z"/>
+                        </svg>
+                        Temperature
+                    </button>
+                    <button
+                        type="button"
+                        class="metric-tab"
+                        role="tab"
+                        data-metric="rainfall"
+                        aria-selected="false"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                        </svg>
+                        Rainfall
+                    </button>
+                    <button
+                        type="button"
+                        class="metric-tab"
+                        role="tab"
+                        data-metric="wind"
+                        aria-selected="false"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" aria-hidden="true">
+                            <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
+                        </svg>
+                        Wind
+                    </button>
+                </div>
+
+                <!-- Chart Container -->
+                <div class="chart-container">
+                    <canvas id="weather-chart" aria-label="Weather forecast chart"></canvas>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" aria-live="polite">
+        <div class="spinner" aria-label="Loading weather data">
+            <div class="spinner-ring"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>
+                Data from
+                <a
+                    href="https://open-meteo.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >Open-Meteo</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts — load order matters: data → state → services → orchestrator -->
+    <script src="/static/js/counties.js"></script>
+    <script src="/static/js/weather-codes.js"></script>
+    <script src="/static/js/state.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/chart-config.js"></script>
+    <script src="/static/js/ui.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
