@@ -32,11 +32,21 @@ tests under `tests/`.
 
 ## Where things are
 
+<!-- GENERATED:where-things-are — do not edit; run core/bin/project-shape --apply -->
 | What | Where |
 |---|---|
-| Specification and build status | `docs/spec.md`, `docs/status.md` |
-| Design | `docs/design/` |
-| Everything else | the scaffolded `docs/` types, currently empty |
+| Sir's brief, at project zero | `docs/sir-brief/` |
+| The problem being solved | `docs/problem/` |
+| Assumptions taken | `docs/assumption/` |
+| Success criteria, per feature | `docs/success-criteria/` |
+| What is deliberately not being built | `docs/out-of-scope/` |
+| Design, per feature | `docs/design/` |
+| Data layer, API contract, conventions | `docs/architecture/` |
+| Stories and acceptance criteria | `docs/user-story/` |
+| Implementation plans and task briefs | `docs/plan/` |
+| Decisions, with rationale | `docs/decision/` |
+| Per-story build deviations | `state/` |
+<!-- /GENERATED:where-things-are -->
 
 ## Open
 
